@@ -4,7 +4,7 @@ using ColorTypes
 using Colors: Colors, clamp01
 using FixedPointNumbers
 
-export LUTS, ColorTable, TabPseudoColor
+export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor
 
 
 ########################################################################################################################
@@ -158,6 +158,57 @@ Base.show(io::IO, c::TabPseudoColor{T,TAB}) where {T,TAB} = print(io, "TabPseudo
 
 # Nice printing (mostly for notebooks)
 Base.show(io::IO, m::MIME"image/svg+xml", c::TabPseudoColor{T,TAB}) where {T,TAB} = (io, m, _tabcol_(TAB, c.val))
+
+
+# 2. PSEUDO-COLORS DEFINED BY FUNCTIONS
+# -------------------------------------
+
+struct ColorFunction{R<:Function,G<:Function,B<:Function}
+    red::R
+    green::G
+    blue::B
+end
+
+(c::ColorFunction)(C::Type{<:AbstractRGB}, val) = C(c.red(val), c.green(val), c.blue(val))
+
+struct FunPseudoColor{T,F} <: AbstractPseudoColor{T}
+    val::T
+end
+
+# Traits from ColorTypes.jl
+ColorTypes.red(c::FunPseudoColor{T,F})   where {T,F} = T(F.red(gray(c)))
+ColorTypes.green(c::FunPseudoColor{T,F}) where {T,F} = T(F.green(gray(c)))
+ColorTypes.blue(c::FunPseudoColor{T,F})  where {T,F} = T(F.blue(gray(c)))
+
+# Defines conversion to RGB
+Base.convert(C::Type{<:AbstractRGB}, c::FunPseudoColor{T,F}) where {T,F} = F(C, gray(c))
+
+Base.eltype(::Type{FunPseudoColor{Gray{T},F}}) where {T,F} = T
+Base.eltype(::Type{FunPseudoColor{T,F}}) where {T,F} = T
+
+# 3. FUNCTOR
+# -----------
+
+struct ToPseudoColor{M}
+    map::M # ColorTable or ColorFunction
+end
+
+ToPseudoColor(name::Symbol) = ToPseudoColor(ColorTable(name))
+
+function (f::ToPseudoColor{M})(img) where {M<:ColorTable}
+    reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img))
+end
+
+function (f::ToPseudoColor{M})(img) where {M<:ColorFunction}
+    reinterpret(reshape, FunPseudoColor{eltype(img), f.map}, img)
+end
+
+# Nice ToPseudoColor printing
+function Base.show(io::IO, f::ToPseudoColor{M}) where M
+    print(io, "ToPseudoColor{$M}(")
+    print(io, f.map)
+    print(io,")")
+end
 
 
 ########################################################################################################################
