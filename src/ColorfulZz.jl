@@ -286,6 +286,23 @@ Base.convert(C::Type{<:AbstractRGB}, c::ScaledGray{T,S}) where {T,S} = C(gray(c)
 
 Base.eltype(::Type{ScaledGray{T1}}) where {T2,T1<:Gray{T2}} = T2
 
+# 3. SCALED PSEUDO-COLORS
+# -----------------------
+
+struct ScaledPseudoColor{T,C,S} <: AbstractPseudoColor{T}
+  val::T
+end
+
+ScaledPseudoColor(T, C, S, val) = ScaledPseudoColor{T,C,S}(val)
+
+# Traits from ColorTypes.jl
+ColorTypes.gray(c::ScaledPseudoColor{T,C,S})  where {T,C,S} = S(c.val)
+ColorTypes.red(c::ScaledPseudoColor{T,C,S})   where {T,C,S} = red(C(gray(c)))
+ColorTypes.green(c::ScaledPseudoColor{T,C,S}) where {T,C,S} = green(C(gray(c)))
+ColorTypes.blue(c::ScaledPseudoColor{T,C,S})  where {T,C,S} = blue(C(gray(c)))
+
+# Defines conversion to RGB
+Base.convert(C::Type{<:AbstractRGB}, c::ScaledPseudoColor) = C(red(c), green(c), blue(c))
 
 ########################################################################################################################
 #                                                    BUILT'IN LUTS                                                     #
