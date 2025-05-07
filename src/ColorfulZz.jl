@@ -163,6 +163,11 @@ Base.show(io::IO, m::MIME"image/svg+xml", c::TabPseudoColor{T,TAB}) where {T,TAB
 # 2. PSEUDO-COLORS DEFINED BY FUNCTIONS
 # -------------------------------------
 
+"""
+    ColorFunction{R<:Function,G<:Function,B<:Function}
+
+This type stores 3 functions producing red, green and blue channels.
+"""
 struct ColorFunction{R<:Function,G<:Function,B<:Function}
     red::R
     green::G
@@ -171,6 +176,11 @@ end
 
 (c::ColorFunction)(C::Type{<:AbstractRGB}, val) = C(c.red(val), c.green(val), c.blue(val))
 
+"""
+    FunPseudoColor{T,F}
+
+This type is used to render a real or gray value with a `ColorFunction`.
+"""
 struct FunPseudoColor{T,F} <: AbstractPseudoColor{T}
     val::T
 end
@@ -189,11 +199,24 @@ Base.eltype(::Type{FunPseudoColor{T,F}}) where {T,F} = T
 # 3. FUNCTOR
 # -----------
 
+"""
+    ToPseudoColor{M}
+
+
+"""
 struct ToPseudoColor{M}
     map::M # ColorTable or ColorFunction
 end
 
+"""
+
+"""
 ToPseudoColor(name::Symbol) = ToPseudoColor(ColorTable(name))
+
+"""
+
+"""
+ToPseudoColor(fred, fgreen, fblue) = ToPseudoColor(ColorFunction(fred, fgreen, fblue))
 
 function (f::ToPseudoColor{M})(img) where {M<:ColorTable}
     reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img))
@@ -209,6 +232,59 @@ function Base.show(io::IO, f::ToPseudoColor{M}) where M
     print(io, f.map)
     print(io,")")
 end
+
+
+########################################################################################################################
+#                                            SCALED GRAYS AND PSEUDO-COLORS                                            #
+########################################################################################################################
+
+# 1. SCALER
+# ---------
+
+"""
+    Scaler{T}
+
+This type automatically scales a real/gray value into the range [0-1].
+"""
+struct Scaler{T}
+    low::T # lowest value
+    rng::T # range of values
+end
+
+"""
+    Scaler(::Type, lo, hi)
+
+Builds a `Scaler` that scale a value from the range [lo-hi] to [0-1].
+"""
+Scaler(::Type{T}, lo, hi) where T = Scaler{T}(T(lo), T(hi - lo))
+
+Scaler(::Type{Gray{T}}, lo, hi) where T = Scaler(T, lo, hi)
+
+function (s::Scaler{T})(val::T) where T<:Normed
+    # Computes in floating type to avoid overflow
+    F = floattype(val)
+    T(clamp01((F(val) - F(s.low)) / F(s.rng)))
+end
+
+(s::Scaler{T})(val::T) where T<:Real = T((val - s.low) / s.rng)
+
+(s::Scaler{T})(val::Gray{T}) where T = s(T(val))
+
+
+# 2. SCALED GRAYS
+# ---------------
+
+struct ScaledGray{T,S} <: AbstractGray{T}
+    val::T
+end
+
+ScaledGray(T, S, val) = ScaledGray{T,S}(val)
+
+ColorTypes.gray(c::ScaledGray{T,S}) where {T,S} = S(c.val)
+
+Base.convert(C::Type{<:AbstractRGB}, c::ScaledGray{T,S}) where {T,S} = C(gray(c))
+
+Base.eltype(::Type{ScaledGray{T1}}) where {T2,T1<:Gray{T2}} = T2
 
 
 ########################################################################################################################
