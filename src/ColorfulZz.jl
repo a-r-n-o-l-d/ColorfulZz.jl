@@ -218,13 +218,9 @@ ToPseudoColor(name::Symbol) = ToPseudoColor(ColorTable(name))
 """
 ToPseudoColor(fred, fgreen, fblue) = ToPseudoColor(ColorFunction(fred, fgreen, fblue))
 
-function (f::ToPseudoColor{M})(img) where {M<:ColorTable}
-    reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img))
-end
+(f::ToPseudoColor{M})(img) where {M<:ColorTable} = reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img))
 
-function (f::ToPseudoColor{M})(img) where {M<:ColorFunction}
-    reinterpret(reshape, FunPseudoColor{eltype(img), f.map}, img)
-end
+(f::ToPseudoColor{M})(img) where {M<:ColorFunction} = reinterpret(reshape, FunPseudoColor{eltype(img), f.map}, img)
 
 # Nice ToPseudoColor printing
 function Base.show(io::IO, f::ToPseudoColor{M}) where M
@@ -263,7 +259,7 @@ Scaler(::Type{Gray{T}}, lo, hi) where T = Scaler(T, lo, hi)
 function (s::Scaler{T})(val::T) where T<:Normed
     # Computes in floating type to avoid overflow
     F = floattype(val)
-    T(clamp01((F(val) - F(s.low)) / F(s.rng)))
+    return T(clamp01((F(val) - F(s.low)) / F(s.rng)))
 end
 
 (s::Scaler{T})(val::T) where T<:Real = T((val - s.low) / s.rng)
@@ -304,18 +300,19 @@ ColorTypes.blue(c::ScaledPseudoColor{T,C,S})  where {T,C,S} = blue(C(gray(c)))
 # Defines conversion to RGB
 Base.convert(C::Type{<:AbstractRGB}, c::ScaledPseudoColor) = C(red(c), green(c), blue(c))
 
+
 # 4. FUNCTORS
 # -----------
 
 struct AutoMinMax end
 
 function (f::AutoMinMax)(img::AbstractArray{T}) where T<:Union{Real,AbstractGray}
-    reinterpret(reshape, ScaledGray{eltype(img),_scaler_(img)}, img)
+    return reinterpret(reshape, ScaledGray{eltype(img),_scaler_(img)}, img)
 end
 
 function (f::AutoMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseudoColor
     T2 = eltype(eltype(img))
-    reinterpret(reshape, ScaledPseudoColor{T2,T1,_scaler_(img)}, img)
+    return reinterpret(reshape, ScaledPseudoColor{T2,T1,_scaler_(img)}, img)
 end
 
 struct SetMinMax
@@ -324,12 +321,12 @@ struct SetMinMax
 end
 
 function (f::SetMinMax)(img::AbstractArray{T}) where T<:Union{Real,AbstractGray}
-    reinterpret(reshape, ScaledGray{eltype(img),Scaler(eltype(img), f.vmin, f.vmax)}, img)
+    return reinterpret(reshape, ScaledGray{eltype(img),Scaler(eltype(img), f.vmin, f.vmax)}, img)
 end
 
 function (f::SetMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseudoColor
     T2 = eltype(eltype(img))
-    reinterpret(reshape, ScaledPseudoColor{T2,T1,Scaler(eltype(img), f.vmin, f.vmax)}, img)
+    return reinterpret(reshape, ScaledPseudoColor{T2,T1,Scaler(eltype(img), f.vmin, f.vmax)}, img)
 end
 
 struct AutoSaturateMinMax
@@ -340,12 +337,12 @@ end
 AutoSaturateMinMax(;qmin=0.05, qmax=0.95) = AutoSaturateMinMax(qmin, qmax)
 
 function (f::AutoSaturateMinMax)(img::AbstractArray{T}) where T<:Union{Real,AbstractGray}
-    reinterpret(reshape, ScaledGray{eltype(img),_scaler_(img, f.qmin, f.qmax)}, img)
+    return reinterpret(reshape, ScaledGray{eltype(img),_scaler_(img, f.qmin, f.qmax)}, img)
 end
 
 function (f::AutoSaturateMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseudoColor
     T2 = eltype(eltype(img))
-    reinterpret(reshape, ScaledPseudoColor{T2,T1,_scaler_(gray.(img), f.qmin, f.qmax)}, value.(img))
+    return reinterpret(reshape, ScaledPseudoColor{T2,T1,_scaler_(gray.(img), f.qmin, f.qmax)}, value.(img))
 end
 
 
@@ -354,12 +351,12 @@ end
 
 function _scaler_(img)
     lo, hi = unsafe_extrema(img)
-    Scaler(eltype(img), lo, hi)
+    return Scaler(eltype(img), lo, hi)
 end
 
 function _scaler_(img, qmin, qmax)
     lo, hi = quantile(img, (qmin, qmax))
-    Scaler(eltype(img), lo, hi)
+    return Scaler(eltype(img), lo, hi)
 end
 
 
