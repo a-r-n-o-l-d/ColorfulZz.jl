@@ -4,7 +4,7 @@ using ColorTypes
 using Colors: Colors, clamp01
 using FixedPointNumbers
 
-export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor
+export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, ColoredLabel
 
 
 ########################################################################################################################
@@ -346,8 +346,7 @@ function (f::AutoSaturateMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseud
 end
 
 
-# 5. INNER FUNCTIONS
-# ------------------
+# Internal helper functions:
 
 function _scaler_(img)
     lo, hi = unsafe_extrema(img)
@@ -358,6 +357,41 @@ function _scaler_(img, qmin, qmax)
     lo, hi = quantile(img, (qmin, qmax))
     return Scaler(eltype(img), lo, hi)
 end
+
+
+########################################################################################################################
+#                                                   LABELING COLORS                                                    #
+########################################################################################################################
+
+# 1. COLORED LABEL
+
+struct ColoredLabel{I<:Unsigned,TAB,N} <: AbstractPseudoColor{I}
+  lab::I
+end
+
+colored_label(tab::ColorTable, ::Type{T}=Unsigned) where T = ColoredLabel{T,tab,length(tab)}
+
+label_color(tab::ImageZz.ColorTable, ::Type{T}=Unsigned) where T = LabelColor{T,tab,length(tab)}
+
+ColorTypes.gray(c::LabelColor{I,TAB,N}) where {I,TAB,N} = c.lab / N
+
+ColorTypes.red(c::LabelColor{T,TAB,N})   where {T,TAB,N} = _tabred_(TAB, gray(c))   # red(C, gray(c))
+ColorTypes.green(c::LabelColor{T,TAB,N}) where {T,TAB,N} = _tabgreen_(TAB, gray(c)) # green(C, gray(c))
+ColorTypes.blue(c::LabelColor{T,TAB,N})  where {T,TAB,N} = _tabblue_(TAB, gray(c))  # blue(C, gray(c))
+
+ColorTypes.comp1(c::LabelColor) = red(c)
+ColorTypes.comp2(c::LabelColor) = green(c)
+ColorTypes.comp3(c::LabelColor) = blue(c)
+
+Base.convert(C::Type{<:AbstractRGB}, c::ColoredLabel) = C(red(c), green(c), blue(c))
+
+function Base.show(io::IO, ::Type{LabelColor{T,TAB,S}}) where {T,TAB,S}
+  return print(io, "LabelColor{$T,ColorTable{$S,NTuple{$S,N0f8}(r,g,b),$S}")
+end
+
+
+# 2. LABELED GRAY
+
 
 
 ########################################################################################################################
