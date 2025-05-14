@@ -6,7 +6,7 @@ using FixedPointNumbers
 using MappedArrays
 using Statistics # enlever juste pour quantile
 
-export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudoColor, AutoMinMax, AutoSaturateMinMax, ColoredLabel
+export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudoColor, AutoMinMax, SetMinMax, AutoSaturateMinMax, ColoredLabel
 
 
 ########################################################################################################################
@@ -272,15 +272,16 @@ Scaler(::Type{T}, lo, hi) where T = Scaler{T}(T(lo), T(hi - lo))
 Scaler(::Type{Gray{T}}, lo, hi) where T = Scaler(T, lo, hi)
 
 function (s::Scaler{T})(val::T) where T<:Normed
-    # Computes in floating type to avoid overflow
-    F = floattype(val)
-    return T(clamp01((F(val) - F(s.low)) / F(s.rng)))
+  # Computes in floating type to avoid overflow
+  F = floattype(val)
+  return T(clamp01((F(val) - F(s.low)) / F(s.rng)))
 end
+
+(s::Scaler{T})(val::Gray{T}) where T<:Real = Gray{T}(clamp01((T(val) - T(s.low)) / T(s.rng)))
 
 (s::Scaler{T})(val::T) where T<:Real = T((val - s.low) / s.rng)
 
 (s::Scaler{T})(val::Gray{T}) where T = s(T(val))
-
 
 # 2. SCALED GRAYS
 # ---------------
@@ -330,7 +331,7 @@ function (f::AutoMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseudoColor
     return reinterpret(reshape, ScaledPseudoColor{T2,T1,_scaler_(img)}, img)
 end
 
-struct SetMinMax
+struct SetMinMax #MinMax
     vmin # minimum value
     vmax # maximum value
 end
@@ -381,7 +382,7 @@ end
 # 1. COLORED LABEL
 
 struct ColoredLabel{I<:Unsigned,TAB,N} <: AbstractPseudoColor{I}
-  lab::I
+    lab::I
 end
 
 colored_label(tab::ColorTable, ::Type{T}=Unsigned) where T = ColoredLabel{T,tab,length(tab)}
