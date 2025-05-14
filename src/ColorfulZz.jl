@@ -5,7 +5,7 @@ using Colors: Colors, clamp01
 using FixedPointNumbers
 using MappedArrays
 
-export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, ToPseudoColor, ColoredLabel
+export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudoColor, AutoMinMax, AutoSaturateMinMax, ColoredLabel
 
 
 ########################################################################################################################
@@ -54,7 +54,7 @@ ColorTypes.color_type(::Type{AbstractPseudoColor{T}}) where T = Gray{T}
 #                                                    PSEUDO-COLORS                                                     #
 ########################################################################################################################
 
-# To do: ajout support alpha
+# To do: ajout support alpha?? pb redefinition AbstractPseudoColor
 
 # 1. TABULATED PSEUDO-COLORS
 # --------------------------
@@ -135,7 +135,7 @@ Base.show(io::IO, m::MIME"image/svg+xml", c::ColorTable{N,L}) where {N,L} = show
 
 This type is used to render a real or gray value with a `ColorTable`.
 """
-struct TabPseudoColor{T,TAB} <: AbstractPseudoColor{T} #TabPseudoColorAlpha
+struct TabPseudoColor{T,TAB} <: AbstractPseudoColor{T} #TabPseudoColorAlpha <: Color{T,3}
     val::T
 end
 
@@ -203,27 +203,27 @@ Base.eltype(::Type{FunPseudoColor{T,F}}) where {T,F} = T
 # -----------
 
 """
-    ToPseudoColor{M}
+    AsPseudoColor{M}
 
 
 """
-struct ToPseudoColor{M} # AsPseudoColor
+struct AsPseudoColor{M} # AsPseudoColor
     map::M # ColorTable or ColorFunction
 end
 
 """
 
 """
-ToPseudoColor(name::Symbol) = ToPseudoColor(ColorTable(name))
+AsPseudoColor(name::Symbol) = AsPseudoColor(ColorTable(name))
 
 """
 
 """
-ToPseudoColor(fred, fgreen, fblue) = ToPseudoColor(ColorFunction(fred, fgreen, fblue))
+AsPseudoColor(fred, fgreen, fblue) = AsPseudoColor(ColorFunction(fred, fgreen, fblue))
 
-(f::ToPseudoColor{M})(img) where {M<:ColorTable} = reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img)) ::AbstractArray{T} ,T<:Union{Number,AbstractGray}
+(f::AsPseudoColor{M})(img) where {M<:ColorTable} = reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img)) ::AbstractArray{T} ,T<:Union{Number,AbstractGray}
 
-function (f::ToPseudoColor{M})(img::AbstractArray{TG}) where {M<:ColorTable, TG<:TransparentGray}
+function (f::AsPseudoColor{M})(img::AbstractArray{TG}) where {M<:ColorTable, TG<:TransparentGray}
   G = base_color_type(color_type(eltype(img)))
   N = eltype(color_type(eltype(img)))
   mimg = mappedarray(G{N}, img)
@@ -231,10 +231,10 @@ function (f::ToPseudoColor{M})(img::AbstractArray{TG}) where {M<:ColorTable, TG<
   return reinterpret(reshape, PC, mimg)
 end
 
-(f::ToPseudoColor{M})(img) where {M<:ColorFunction} = reinterpret(reshape, FunPseudoColor{eltype(img), f.map}, img)
+(f::AsPseudoColor{M})(img) where {M<:ColorFunction} = reinterpret(reshape, FunPseudoColor{eltype(img), f.map}, img)
 
 # Nice ToPseudoColor printing
-function Base.show(io::IO, f::ToPseudoColor{M}) where M
+function Base.show(io::IO, f::AsPseudoColor{M}) where M
     print(io, "ToPseudoColor{$M}(")
     print(io, f.map)
     print(io,")")
@@ -364,7 +364,7 @@ function _scaler_(img)
     return Scaler(eltype(img), lo, hi)
 end
 
-function _scaler_(img, qmin, qmax)
+function _scaler_(img, qmin, qmax) # using Spipper pour virer les NaN ou missing
     lo, hi = quantile(img, (qmin, qmax))
     return Scaler(eltype(img), lo, hi)
 end
