@@ -3,6 +3,7 @@ module ColorfulZz
 using ColorTypes
 using Colors: Colors, clamp01
 using FixedPointNumbers
+using MappedArrays
 
 export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, ToPseudoColor, ColoredLabel
 
@@ -204,7 +205,7 @@ Base.eltype(::Type{FunPseudoColor{T,F}}) where {T,F} = T
 
 
 """
-struct ToPseudoColor{M}
+struct ToPseudoColor{M} #PseudoColorView?? PseudoColor
     map::M # ColorTable or ColorFunction
 end
 
@@ -219,6 +220,11 @@ ToPseudoColor(name::Symbol) = ToPseudoColor(ColorTable(name))
 ToPseudoColor(fred, fgreen, fblue) = ToPseudoColor(ColorFunction(fred, fgreen, fblue))
 
 (f::ToPseudoColor{M})(img) where {M<:ColorTable} = reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img))
+
+function (f::ToPseudoColor{M})(img::AbstractArray{TG}) where {M<:ColorTable, TG<:TransparentGray}
+  mimg = mappedarray(Gray, img)
+  return reinterpret(reshape, TabPseudoColor{eltype(mimg), f.map}, mimg)
+end
 
 (f::ToPseudoColor{M})(img) where {M<:ColorFunction} = reinterpret(reshape, FunPseudoColor{eltype(img), f.map}, img)
 
