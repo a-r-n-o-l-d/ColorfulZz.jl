@@ -371,7 +371,7 @@ end
 
 colored_label(tab::ColorTable, ::Type{T}=Unsigned) where T = ColoredLabel{T,tab,length(tab)}
 
-label_color(tab::ImageZz.ColorTable, ::Type{T}=Unsigned) where T = LabelColor{T,tab,length(tab)}
+label_color(tab::ColorTable, ::Type{T}=Unsigned) where T = LabelColor{T,tab,length(tab)}
 
 ColorTypes.gray(c::LabelColor{I,TAB,N}) where {I,TAB,N} = c.lab / N
 
