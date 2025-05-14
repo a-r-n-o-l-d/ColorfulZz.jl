@@ -373,15 +373,15 @@ colored_label(tab::ColorTable, ::Type{T}=Unsigned) where T = ColoredLabel{T,tab,
 
 label_color(tab::ColorTable, ::Type{T}=Unsigned) where T = LabelColor{T,tab,length(tab)}
 
-ColorTypes.gray(c::ColoredLabel{I,TAB,N}) where {I,TAB,N} = c.lab / N
+ColorTypes.gray(c::LabelColor{I,TAB,N}) where {I,TAB,N} = c.lab / N
 
-ColorTypes.red(c::ColoredLabel{T,TAB,N})   where {T,TAB,N} = _tabred_(TAB, gray(c))   # red(C, gray(c))
-ColorTypes.green(c::ColoredLabel{T,TAB,N}) where {T,TAB,N} = _tabgreen_(TAB, gray(c)) # green(C, gray(c))
-ColorTypes.blue(c::ColoredLabel{T,TAB,N})  where {T,TAB,N} = _tabblue_(TAB, gray(c))  # blue(C, gray(c))
+ColorTypes.red(c::LabelColor{T,TAB,N})   where {T,TAB,N} = _tabred_(TAB, gray(c))   # red(C, gray(c))
+ColorTypes.green(c::LabelColor{T,TAB,N}) where {T,TAB,N} = _tabgreen_(TAB, gray(c)) # green(C, gray(c))
+ColorTypes.blue(c::LabelColor{T,TAB,N})  where {T,TAB,N} = _tabblue_(TAB, gray(c))  # blue(C, gray(c))
 
-ColorTypes.comp1(c::ColoredLabel) = red(c)
-ColorTypes.comp2(c::ColoredLabel) = green(c)
-ColorTypes.comp3(c::ColoredLabel) = blue(c)
+ColorTypes.comp1(c::LabelColor) = red(c)
+ColorTypes.comp2(c::LabelColor) = green(c)
+ColorTypes.comp3(c::LabelColor) = blue(c)
 
 Base.convert(C::Type{<:AbstractRGB}, c::ColoredLabel) = C(red(c), green(c), blue(c))
 
