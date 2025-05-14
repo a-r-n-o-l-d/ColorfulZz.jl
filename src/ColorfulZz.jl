@@ -219,7 +219,7 @@ ToPseudoColor(name::Symbol) = ToPseudoColor(ColorTable(name))
 """
 ToPseudoColor(fred, fgreen, fblue) = ToPseudoColor(ColorFunction(fred, fgreen, fblue))
 
-(f::ToPseudoColor{M})(img) where {M<:ColorTable} = reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img))
+(f::ToPseudoColor{M})(img::AbstractArray{T}) where {M<:ColorTable,T<:Union{Number,AbstractGray}} = reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img))
 
 function (f::ToPseudoColor{M})(img::AbstractArray{TG}) where {M<:ColorTable, TG<:TransparentGray}
   mimg = mappedarray(Gray, img)
