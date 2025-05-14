@@ -238,6 +238,7 @@ function Base.show(io::IO, f::ToPseudoColor{M}) where M
     print(io, "ToPseudoColor{$M}(")
     print(io, f.map)
     print(io,")")
+    show(io, f.map)
 end
 
 
