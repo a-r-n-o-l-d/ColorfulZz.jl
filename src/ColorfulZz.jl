@@ -15,6 +15,7 @@ export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudo
 
 #=
 To do :
+- Define AlphaPseudoColor => soit alpha constant, soit alpha tabeau mm taille, soit alpha fonction de val
 - Define (?) arithmetic operators, by example :
     Base.:+(a::C) where C<:AbstractPseudoColor = C(+gray(a))
     Base.:-(a::C) where C<:AbstractPseudoColor = C(-gray(a))
@@ -23,7 +24,7 @@ To do :
     Base.:+(a::Real, b::AbstractPseudoColor) = Gray(gray(a) + gray(b))
     Base.:+(a::AbstractPseudoColor, b::Gray) = Gray(gray(a) + gray(b))
     Base.:+(a::Gray, b::AbstractPseudoColor) = Gray(gray(a) + gray(b))
-- ComplexGray
+- ComplexGray: module du complexe
 =#
 
 """
@@ -167,12 +168,14 @@ Base.show(io::IO, m::MIME"image/svg+xml", c::TabPseudoColor{T,TAB}) where {T,TAB
 # 2. PSEUDO-COLORS DEFINED BY FUNCTIONS
 # -------------------------------------
 
+# To do definir les Base.show
+
 """
     ColorFunction{R<:Function,G<:Function,B<:Function}
 
 This type stores 3 functions producing red, green and blue channels.
 """
-struct ColorFunction{R<:Function,G<:Function,B<:Function} #ColorFunctionAlpha
+struct ColorFunction{R<:Function,G<:Function,B<:Function} #ColorFunctionAlpha ???
     red::R
     green::G
     blue::B
