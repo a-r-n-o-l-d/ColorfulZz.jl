@@ -4,7 +4,7 @@ using ColorTypes
 using Colors: Colors, clamp01
 using FixedPointNumbers
 using MappedArrays
-using Statistics # enlever juste pour quantile
+#using Statistics # enlever juste pour quantile
 
 export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudoColor, AutoMinMax, AutoSaturateMinMax, ColoredLabel
 
