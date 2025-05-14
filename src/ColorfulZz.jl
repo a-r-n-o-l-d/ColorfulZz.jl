@@ -4,7 +4,7 @@ using ColorTypes
 using Colors: Colors, clamp01
 using FixedPointNumbers
 
-export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, ColoredLabel
+export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, ToPseudoColor, ColoredLabel
 
 
 ########################################################################################################################
