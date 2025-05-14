@@ -4,6 +4,7 @@ using ColorTypes
 using Colors: Colors, clamp01
 using FixedPointNumbers
 using MappedArrays
+using StatsBase # enlever juste pour quantile
 
 export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudoColor, AutoMinMax, AutoSaturateMinMax, ColoredLabel
 
@@ -365,7 +366,7 @@ function _scaler_(img)
 end
 
 function _scaler_(img, qmin, qmax) # using Spipper pour virer les NaN ou missing
-    lo, hi = quantile(img, (qmin, qmax))
+    lo, hi = quantile(img, (qmin, qmax)) #faire approximation avec histogramme pour plus rapide
     return Scaler(eltype(img), lo, hi)
 end
 
