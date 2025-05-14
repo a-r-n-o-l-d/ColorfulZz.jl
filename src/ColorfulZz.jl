@@ -222,7 +222,7 @@ ToPseudoColor(fred, fgreen, fblue) = ToPseudoColor(ColorFunction(fred, fgreen, f
 (f::ToPseudoColor{M})(img) where {M<:ColorTable} = reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img)) ::AbstractArray{T} ,T<:Union{Number,AbstractGray}
 
 function (f::ToPseudoColor{M})(img::AbstractArray{TG}) where {M<:ColorTable, TG<:TransparentGray}
-  mimg = mappedarray(Gray, img)
+  mimg = mappedarray(base_color_type(eltype(img)), img)
   println(eltype(mimg))
   return reinterpret(reshape, TabPseudoColor{eltype(mimg), f.map}, mimg)
 end
