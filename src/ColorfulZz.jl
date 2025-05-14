@@ -385,7 +385,7 @@ ColorTypes.comp3(c::ColoredLabel) = blue(c)
 
 Base.convert(C::Type{<:AbstractRGB}, c::ColoredLabel) = C(red(c), green(c), blue(c))
 
-function Base.show(io::IO, ::Type{LabelColor{T,TAB,S}}) where {T,TAB,S}
+function Base.show(io::IO, ::Type{ColoredLabel{T,TAB,S}}) where {T,TAB,S}
   return print(io, "LabelColor{$T,ColorTable{$S,NTuple{$S,N0f8}(r,g,b),$S}")
 end
 
