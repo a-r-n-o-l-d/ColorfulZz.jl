@@ -54,6 +54,8 @@ ColorTypes.color_type(::Type{AbstractPseudoColor{T}}) where T = Gray{T}
 #                                                    PSEUDO-COLORS                                                     #
 ########################################################################################################################
 
+# To do: ajout support alpha
+
 # 1. TABULATED PSEUDO-COLORS
 # --------------------------
 
@@ -133,7 +135,7 @@ Base.show(io::IO, m::MIME"image/svg+xml", c::ColorTable{N,L}) where {N,L} = show
 
 This type is used to render a real or gray value with a `ColorTable`.
 """
-struct TabPseudoColor{T,TAB} <: AbstractPseudoColor{T}
+struct TabPseudoColor{T,TAB} <: AbstractPseudoColor{T} #TabPseudoColorAlpha
     val::T
 end
 
@@ -169,7 +171,7 @@ Base.show(io::IO, m::MIME"image/svg+xml", c::TabPseudoColor{T,TAB}) where {T,TAB
 
 This type stores 3 functions producing red, green and blue channels.
 """
-struct ColorFunction{R<:Function,G<:Function,B<:Function}
+struct ColorFunction{R<:Function,G<:Function,B<:Function} #ColorFunctionAlpha
     red::R
     green::G
     blue::B
@@ -205,7 +207,7 @@ Base.eltype(::Type{FunPseudoColor{T,F}}) where {T,F} = T
 
 
 """
-struct ToPseudoColor{M} #PseudoColorView?? PseudoColor
+struct ToPseudoColor{M} # AsPseudoColor
     map::M # ColorTable or ColorFunction
 end
 
@@ -222,9 +224,11 @@ ToPseudoColor(fred, fgreen, fblue) = ToPseudoColor(ColorFunction(fred, fgreen, f
 (f::ToPseudoColor{M})(img) where {M<:ColorTable} = reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img)) ::AbstractArray{T} ,T<:Union{Number,AbstractGray}
 
 function (f::ToPseudoColor{M})(img::AbstractArray{TG}) where {M<:ColorTable, TG<:TransparentGray}
-  mimg = mappedarray(base_color_type(eltype(img)), img)
-  println(eltype(mimg))
-  return reinterpret(reshape, TabPseudoColor{eltype(mimg), f.map}, mimg)
+  G = base_color_type(color_type(eltype(img)))
+  N = eltype(color_type(eltype(img)))
+  mimg2 = mappedarray(G{N}, img)
+  PC = TabPseudoColor{eltype(mimg2), f.map}
+  return reinterpret(reshape, PC, mimg)
 end
 
 (f::ToPseudoColor{M})(img) where {M<:ColorFunction} = reinterpret(reshape, FunPseudoColor{eltype(img), f.map}, img)
