@@ -104,6 +104,7 @@ ColorTable(name::Symbol) = LUTS[name]
 ## Convert a gray value to an index corresponding to a color in a ColorTable
 _tabindex_(::ColorTable{N}, val) where N = round(Int, clamp01(val) * (N - 1) + 1)
 _tabindex_(c::ColorTable, val::G) where {T,G<:AbstractGray{T}} = _tabindex_(c, T(val))
+_tabindex_(c::ColorTable, val::G) where {T,G<:ScaledGray{<:AbstractGray{T}}} = _tabindex_(c, T(val)) # support for scaledgray
 _tabindex_(::ColorTable{N}, val::Normed) where N = round(Int, val * (N - 1) + 1)
 ## Convert a gray value to a RGB color
 function _tabcol_(c::ColorTable, val)
