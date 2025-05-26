@@ -6,7 +6,7 @@ using FixedPointNumbers
 using MappedArrays
 using Statistics # enlever juste pour quantile
 
-export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudoColor, AutoMinMax, SetMinMax, AutoSaturateMinMax, ColoredLabel
+export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudoColor, ScaledGray, ScaledPseudoColor, AutoMinMax, SetMinMax, AutoSaturateMinMax, ColoredLabel
 
 
 ########################################################################################################################
@@ -161,8 +161,8 @@ end
 # Nice TabPseudoColor printing
 Base.show(io::IO, c::TabPseudoColor{T,TAB}) where {T,TAB} = print(io, "TabPseudoColor{$T}($(gray(c)))")
 
-# Nice printing (mostly for notebooks)
-Base.show(io::IO, m::MIME"image/svg+xml", c::TabPseudoColor{T,TAB}) where {T,TAB} = (io, m, _tabcol_(TAB, c.val))
+# Nice printing (mostly for notebooks) marche pas
+Base.show(io::IO, m::MIME"image/svg+xml", c::TabPseudoColor{T,TAB}) where {T,TAB} = show(io, m, _tabcol_(TAB, c.val))
 
 
 # 2. PSEUDO-COLORS DEFINED BY FUNCTIONS
@@ -200,8 +200,8 @@ ColorTypes.blue(c::FunPseudoColor{T,F})  where {T,F} = T(F.blue(gray(c)))
 # Defines conversion to RGB
 Base.convert(C::Type{<:AbstractRGB}, c::FunPseudoColor{T,F}) where {T,F} = F(C, gray(c))
 
-Base.eltype(::Type{FunPseudoColor{Gray{T},F}}) where {T,F} = T
-Base.eltype(::Type{FunPseudoColor{T,F}}) where {T,F} = T
+Base.eltype(::Type{FunPseudoColor{Gray{T},F}}) where {T,F} = T #tester
+Base.eltype(::Type{FunPseudoColor{T,F}}) where {T,F} = T #tester
 
 # 3. FUNCTOR
 # -----------
@@ -218,21 +218,22 @@ end
 """
 
 """
-AsPseudoColor(name::Symbol) = AsPseudoColor(ColorTable(name))
+AsPseudoColor(name::Symbol) = AsPseudoColor(ColorTable(name)) # ajout recherche ij et colorschemes auto
 
 """
 
 """
 AsPseudoColor(fred, fgreen, fblue) = AsPseudoColor(ColorFunction(fred, fgreen, fblue))
 
-(f::AsPseudoColor{M})(img) where {M<:ColorTable} = reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img)) ::AbstractArray{T} ,T<:Union{Number,AbstractGray}
+(f::AsPseudoColor{M})(img) where M<:ColorTable = reinterpret(reshape, TabPseudoColor{eltype(img), f.map}, img) #realtype(eltype(img)) ::AbstractArray{T} ,T<:Union{Number,AbstractGray}
 
 function (f::AsPseudoColor{M})(img::AbstractArray{TG}) where {M<:ColorTable, TG<:TransparentGray}
-  G = base_color_type(color_type(eltype(img)))
-  N = eltype(color_type(eltype(img)))
-  mimg = mappedarray(G{N}, img)
-  PC = TabPseudoColor{eltype(mimg), f.map}
-  return reinterpret(reshape, PC, mimg)
+    # Discard alpha channel
+    G = base_color_type(color_type(eltype(img)))
+    N = eltype(color_type(eltype(img)))
+    mimg = mappedarray(G{N}, img)
+    PC = TabPseudoColor{eltype(mimg), f.map}
+    return reinterpret(reshape, PC, mimg)
 end
 
 (f::AsPseudoColor{M})(img) where {M<:ColorFunction} = reinterpret(reshape, FunPseudoColor{eltype(img), f.map}, img)
@@ -272,9 +273,15 @@ Scaler(::Type{T}, lo, hi) where T = Scaler{T}(T(lo), T(hi - lo))
 Scaler(::Type{Gray{T}}, lo, hi) where T = Scaler(T, lo, hi)
 
 function (s::Scaler{T})(val::T) where T<:Normed
-  # Computes in floating type to avoid overflow
-  F = floattype(val)
-  return T(clamp01((F(val) - F(s.low)) / F(s.rng)))
+    # Computes in floating type to avoid overflow
+    F = floattype(val)
+    return T(clamp01((F(val) - F(s.low)) / F(s.rng)))
+end
+
+function (s::Scaler{T})(val::Gray{T}) where T<:Normed
+    # Computes in floating type to avoid overflow
+    F = floattype(T)
+    return Gray{T}(clamp01((F(val) - F(s.low)) / F(s.rng)))
 end
 
 (s::Scaler{T})(val::Gray{T}) where T<:Real = Gray{T}(clamp01((T(val) - T(s.low)) / T(s.rng)))
@@ -282,6 +289,7 @@ end
 (s::Scaler{T})(val::T) where T<:Real = T((val - s.low) / s.rng)
 
 (s::Scaler{T})(val::Gray{T}) where T = s(T(val))
+
 
 # 2. SCALED GRAYS
 # ---------------
@@ -296,7 +304,14 @@ ColorTypes.gray(c::ScaledGray{T,S}) where {T,S} = S(c.val)
 
 Base.convert(C::Type{<:AbstractRGB}, c::ScaledGray{T,S}) where {T,S} = C(gray(c))
 
-Base.eltype(::Type{ScaledGray{T1}}) where {T2,T1<:Gray{T2}} = T2
+#Base.eltype(::Type{ScaledGray{T1}}) where {T2,T1<:Gray{T2}} = T2 # marche pas
+
+# Nice ScaledGray printing
+#Base.show(io::IO, c::ScaledGray{T,S}) where {T,S} = print(io, "ScaledGray{$T}($(gray(c)))")
+
+# Nice printing (mostly for notebooks)
+Base.show(io::IO, m::MIME"image/svg+xml", c::ScaledGray{T,S}) where {T,S} = show(io, m, gray(c))
+
 
 # 3. SCALED PSEUDO-COLORS
 # -----------------------
@@ -316,6 +331,7 @@ ColorTypes.blue(c::ScaledPseudoColor{T,C,S})  where {T,C,S} = blue(C(gray(c)))
 # Defines conversion to RGB
 Base.convert(C::Type{<:AbstractRGB}, c::ScaledPseudoColor) = C(red(c), green(c), blue(c))
 
+#Base.eltype(::Type{ScaledPseudoColor{T1}}) where {T2,T1<:Gray{T2}} = T2 # marche pas
 
 # 4. FUNCTORS
 # -----------
@@ -331,7 +347,7 @@ function (f::AutoMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseudoColor
     return reinterpret(reshape, ScaledPseudoColor{T2,T1,_scaler_(img)}, img)
 end
 
-struct SetMinMax #MinMax
+struct SetMinMax
     vmin # minimum value
     vmax # maximum value
 end
@@ -356,7 +372,7 @@ function (f::AutoSaturateMinMax)(img::AbstractArray{T}) where T<:Union{Real,Abst
     return reinterpret(reshape, ScaledGray{eltype(img),_scaler_(img, f.qmin, f.qmax)}, img)
 end
 
-function (f::AutoSaturateMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseudoColor
+function (f::AutoSaturateMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseudoColor # tester (img::AbstractArray{T1{T2}}) where {T1<:AbstractPseudoColor,T2}
     T2 = eltype(eltype(img))
     return reinterpret(reshape, ScaledPseudoColor{T2,T1,_scaler_(gray.(img), f.qmin, f.qmax)}, value.(img))
 end
