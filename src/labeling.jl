@@ -36,8 +36,6 @@ struct LabeledGray{T,L<:ColoredLabel,A} <: AbstractPseudoColor{T}
     lab::L
 end
 
-
-
 ColorTypes.gray(c::LabeledGray{T,L,A}) where {T,L,A} = gray(c.val) #c.lab.lab > 0 : A * gray(c.lab) + gray(c.val) ?
 
 ColorTypes.red(c::LabeledGray{T,L,A})   where {T,L,A} = _blend_(red, c) #!isbg(c) ? A * red(c.lab) + (1 - A) * gray(c.val) : gray(c.val)

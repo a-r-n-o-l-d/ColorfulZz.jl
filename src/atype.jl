@@ -14,6 +14,7 @@ To do :
     Base.:+(a::AbstractPseudoColor, b::Gray) = Gray(gray(a) + gray(b))
     Base.:+(a::Gray, b::AbstractPseudoColor) = Gray(gray(a) + gray(b))
 - ComplexGray: module du complexe
+- alpha compositing
 =#
 
 """
