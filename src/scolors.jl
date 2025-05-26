@@ -69,7 +69,7 @@ Base.show(io::IO, m::MIME"image/svg+xml", c::ScaledGray{T,S}) where {T,S} = show
 # -----------------------
 
 struct ScaledPseudoColor{T,C,S} <: AbstractPseudoColor{T}
-  val::T
+    val::T
 end
 
 ScaledPseudoColor(T, C, S, val) = ScaledPseudoColor{T,C,S}(val)

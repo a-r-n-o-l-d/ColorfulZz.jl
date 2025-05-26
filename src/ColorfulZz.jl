@@ -8,12 +8,12 @@ using Statistics # enlever juste pour quantile, mettre quantile rapide dans Base
 
 include("atype.jl")
 
-export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudoColor
-include("luts.jl")
-include("pcolors.jl")
-
 export ScaledGray, ScaledPseudoColor, AutoMinMax, SetMinMax, AutoSaturateMinMax
 include("scolors.jl")
+
+export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudoColor
+include("pcolors.jl")
+include("luts.jl")
 
 export ColoredLabel
 include("labeling.jl")
