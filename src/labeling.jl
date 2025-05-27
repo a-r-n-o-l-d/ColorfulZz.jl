@@ -4,19 +4,18 @@
 
 # 1. COLORED LABEL
 # ----------------
-struct ColoredLabel{T,TAB} <: AbstractPseudoColor{T} #<:Unsigned
+struct ColoredLabel{T,TAB} <: AbstractPseudoColor{T}
     lab::T
 end
 
-colored_label(tab::ColorTable, ::Type{T}=Unsigned) where T = ColoredLabel{T,tab,length(tab)}
-
-colored_label(tab::Symbol, ::Type{T}=Unsigned) where T = colored_label(ColorTable(tab), T)
+#colored_label(tab::ColorTable, ::Type{T}=Unsigned) where T = ColoredLabel{T,tab,length(tab)}
+#colored_label(tab::Symbol, ::Type{T}=Unsigned) where T = colored_label(ColorTable(tab), T)
 
 ColorTypes.gray(c::ColoredLabel{I,TAB}) where {I,TAB} = c.lab / length(TAB)
 
-ColorTypes.red(c::ColoredLabel{T,TAB})   where {T,TAB} = _tabred_(TAB, gray(c))   # red(C, gray(c))
-ColorTypes.green(c::ColoredLabel{T,TAB}) where {T,TAB} = _tabgreen_(TAB, gray(c)) # green(C, gray(c))
-ColorTypes.blue(c::ColoredLabel{T,TAB})  where {T,TAB} = _tabblue_(TAB, gray(c))  # blue(C, gray(c))
+ColorTypes.red(c::ColoredLabel{T,TAB})   where {T,TAB} = _tabred_(TAB, gray(c))
+ColorTypes.green(c::ColoredLabel{T,TAB}) where {T,TAB} = _tabgreen_(TAB, gray(c))
+ColorTypes.blue(c::ColoredLabel{T,TAB})  where {T,TAB} = _tabblue_(TAB, gray(c))
 
 ColorTypes.comp1(c::ColoredLabel) = red(c)
 ColorTypes.comp2(c::ColoredLabel) = green(c)

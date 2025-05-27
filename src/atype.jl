@@ -13,8 +13,10 @@ To do :
     Base.:+(a::Real, b::AbstractPseudoColor) = Gray(gray(a) + gray(b))
     Base.:+(a::AbstractPseudoColor, b::Gray) = Gray(gray(a) + gray(b))
     Base.:+(a::Gray, b::AbstractPseudoColor) = Gray(gray(a) + gray(b))
+- AbstractPseudoColor => AbstractColorfulGray
 - ComplexGray: module du complexe
 - alpha compositing
+- ThresholdedGray ThesholdedPseudoColor (lo, hi, over, under, over_under)
 =#
 
 """

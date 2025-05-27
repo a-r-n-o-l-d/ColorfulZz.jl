@@ -15,7 +15,7 @@ export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudo
 include("pcolors.jl")
 include("luts.jl")
 
-export ColoredLabel, LabeledGray, AsColoredLabeling, OverlayLabels
+export ColoredLabel, LabeledGray, LabeledPseudoColor, AsColoredLabeling, OverlayLabels
 include("labeling.jl")
 
 end
