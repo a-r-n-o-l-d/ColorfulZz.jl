@@ -156,7 +156,7 @@ Base.eltype(::Type{FunPseudoColor{T,F}}) where {T,F} = T #tester
 
 
 """
-struct AsPseudoColor{M} # AsPseudoColor
+struct AsPseudoColor{M}
     map::M # ColorTable or ColorFunction
 end
 
@@ -183,9 +183,9 @@ end
 
 (f::AsPseudoColor{M})(img) where {M<:ColorFunction} = reinterpret(reshape, FunPseudoColor{eltype(img), f.map}, img)
 
-# Nice ToPseudoColor printing
+# Nice AsPseudoColor printing
 function Base.show(io::IO, f::AsPseudoColor{M}) where M
-    print(io, "ToPseudoColor{$M}(")
+    print(io, "AsPseudoColor{$M}(")
     print(io, f.map)
     print(io,")")
 end
