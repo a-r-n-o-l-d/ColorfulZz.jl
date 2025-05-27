@@ -22,23 +22,23 @@ To do :
 """
 This abstract type is used to define a pseudo-color (a.k.a. false-color) colorant rendered from a `Gray` colorant.
 """
-abstract type AbstractPseudoColor{T} <: Color{T,3} end
+abstract type AbstractColorful{T} <: Color{T,3} end
 
 """
-    value(a::AbstractPseudoColor{T})
+    value(a::AbstractColorful{T})
 
-Returns the raw value of a given pseudo-color.
+Returns the raw value of a given AbstractColorful type.
 """
-value(a::AbstractPseudoColor{T}) where T = reinterpret(T, a)
+value(a::AbstractColorful{T}) where T = reinterpret(T, a)
 
 """
     Base.eltype(::AbstractPseudoColor{T})
 """
-Base.eltype(::AbstractPseudoColor{T}) where T = T
+Base.eltype(::AbstractColorful{T}) where T = T
 
 # Default traits from ColorTypes.jl
-ColorTypes.gray(c::AbstractPseudoColor)  = c.val
-ColorTypes.comp1(c::AbstractPseudoColor) = red(c)
-ColorTypes.comp2(c::AbstractPseudoColor) = green(c)
-ColorTypes.comp3(c::AbstractPseudoColor) = blue(c)
-ColorTypes.color_type(::Type{AbstractPseudoColor{T}}) where T = Gray{T}
+ColorTypes.gray(c::AbstractColorful)  = c.val
+ColorTypes.comp1(c::AbstractColorful) = red(c)
+ColorTypes.comp2(c::AbstractColorful) = green(c)
+ColorTypes.comp3(c::AbstractColorful) = blue(c)
+ColorTypes.color_type(::Type{AbstractColorful{T}}) where T = Gray{T}

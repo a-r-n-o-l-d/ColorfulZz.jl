@@ -68,7 +68,7 @@ Base.show(io::IO, m::MIME"image/svg+xml", c::ScaledGray{T,S}) where {T,S} = show
 # 3. SCALED PSEUDO-COLORS
 # -----------------------
 
-struct ScaledPseudoColor{T,C,S} <: AbstractPseudoColor{T}
+struct ScaledPseudoColor{T,C,S} <: AbstractColorful{T}
     val::T
 end
 
@@ -94,7 +94,7 @@ function (f::AutoMinMax)(img::AbstractArray{T}) where T<:Union{Real,AbstractGray
     return reinterpret(reshape, ScaledGray{eltype(img),_scaler_(img)}, img)
 end
 
-function (f::AutoMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseudoColor
+function (f::AutoMinMax)(img::AbstractArray{T1}) where T1<:AbstractColorful
     T2 = eltype(eltype(img))
     return reinterpret(reshape, ScaledPseudoColor{T2,T1,_scaler_(img)}, img)
 end
@@ -108,7 +108,7 @@ function (f::SetMinMax)(img::AbstractArray{T}) where T<:Union{Real,AbstractGray}
     return reinterpret(reshape, ScaledGray{eltype(img),Scaler(eltype(img), f.vmin, f.vmax)}, img)
 end
 
-function (f::SetMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseudoColor
+function (f::SetMinMax)(img::AbstractArray{T1}) where T1<:AbstractColorful
     T2 = eltype(eltype(img))
     return reinterpret(reshape, ScaledPseudoColor{T2,T1,Scaler(eltype(img), f.vmin, f.vmax)}, img)
 end
@@ -124,7 +124,7 @@ function (f::AutoSaturateMinMax)(img::AbstractArray{T}) where T<:Union{Real,Abst
     return reinterpret(reshape, ScaledGray{eltype(img),_scaler_(img, f.qmin, f.qmax)}, img)
 end
 
-function (f::AutoSaturateMinMax)(img::AbstractArray{T1}) where T1<:AbstractPseudoColor # tester (img::AbstractArray{T1{T2}}) where {T1<:AbstractPseudoColor,T2}
+function (f::AutoSaturateMinMax)(img::AbstractArray{T1}) where T1<:AbstractColorful # tester (img::AbstractArray{T1{T2}}) where {T1<:AbstractPseudoColor,T2}
     T2 = eltype(eltype(img))
     return reinterpret(reshape, ScaledPseudoColor{T2,T1,_scaler_(gray.(img), f.qmin, f.qmax)}, value.(img))
 end

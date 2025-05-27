@@ -82,7 +82,7 @@ Base.show(io::IO, m::MIME"image/svg+xml", c::ColorTable{N,L}) where {N,L} = show
 
 This type is used to render a real or gray value with a `ColorTable`.
 """
-struct TabPseudoColor{T,TAB} <: AbstractPseudoColor{T} #TabPseudoColorAlpha <: Color{T,3}
+struct TabPseudoColor{T,TAB} <: AbstractColorful{T} #TabPseudoColorAlpha <: Color{T,3}
     val::T
 end
 
@@ -133,7 +133,7 @@ end
 
 This type is used to render a real or gray value with a `ColorFunction`.
 """
-struct FunPseudoColor{T,F} <: AbstractPseudoColor{T}
+struct FunPseudoColor{T,F} <: AbstractColorful{T}
     val::T
 end
 

@@ -6,13 +6,13 @@ using FixedPointNumbers
 using MappedArrays
 using Statistics # enlever juste pour quantile, mettre quantile rapide dans BaseZz
 
-include("atype.jl")
+include("type.jl")
 
 export ScaledGray, ScaledPseudoColor, AutoMinMax, SetMinMax, AutoSaturateMinMax
-include("scolors.jl")
+include("scaled-colors.jl")
 
 export LUTS, ColorTable, TabPseudoColor, ColorFunction, FunPseudoColor, AsPseudoColor
-include("pcolors.jl")
+include("pseudo-colors.jl")
 include("luts.jl")
 
 export ColoredLabel, LabeledGray, LabeledPseudoColor, AsColoredLabeling, OverlayLabels

@@ -4,7 +4,7 @@
 
 # 1. COLORED LABEL
 # ----------------
-struct ColoredLabel{T,TAB} <: AbstractPseudoColor{T}
+struct ColoredLabel{T,TAB} <: AbstractColorful{T}
     lab::T
 end
 
@@ -31,7 +31,7 @@ end
 # 2. LABELED GRAYS
 # ----------------
 
-struct LabeledGray{T,A} <: AbstractPseudoColor{T}
+struct LabeledGray{T,A} <: AbstractColorful{T}
     val::T
     lab
 end
@@ -52,7 +52,7 @@ Base.convert(C::Type{<:AbstractRGB}, c::LabeledGray) = C(red(c), green(c), blue(
 # 3. LABELED PSEUDO-COLORS
 # ------------------------
 
-struct LabeledPseudoColor{T,A} <: AbstractPseudoColor{T}
+struct LabeledPseudoColor{T,A} <: AbstractColorful{T}
     val::T
     lab
 end
@@ -89,7 +89,6 @@ end
 OverlayLabels(tab::Symbol=:glasbey_inverted, alpha=0.6) = OverlayLabels(ColorTable(tab), alpha)
 
 function (o::OverlayLabels)(img::AbstractArray{T1}, labs::AbstractArray{T2}) where {T1,T2<:ColoredLabel}
-    #cl = ColoredLabel{T2,o.tab}
     lg = LabeledGray{T1,o.alpha}
     return mappedarray(lg, img, labs)
 end
@@ -100,13 +99,12 @@ function (o::OverlayLabels)(img::AbstractArray{T1}, labs::AbstractArray{T2}) whe
     return mappedarray(lg, img, la)
 end
 
-function (o::OverlayLabels)(img::AbstractArray{T1}, labs::AbstractArray{T2}) where {T1<:AbstractPseudoColor,T2<:ColoredLabel}
-    #cl = ColoredLabel{T2,o.tab}
+function (o::OverlayLabels)(img::AbstractArray{T1}, labs::AbstractArray{T2}) where {T1<:AbstractColorful,T2<:ColoredLabel}
     lg = LabeledPseudoColor{T1,o.alpha}
     return mappedarray(lg, img, labs)
 end
 
-function (o::OverlayLabels)(img::AbstractArray{T1}, labs::AbstractArray{T2}) where {T1<:AbstractPseudoColor,T2}
+function (o::OverlayLabels)(img::AbstractArray{T1}, labs::AbstractArray{T2}) where {T1<:AbstractColorful,T2}
     la = reinterpret(reshape, ColoredLabel{T2,o.tab}, labs)
     lg = LabeledPseudoColor{T1,o.alpha}
     return mappedarray(lg, img, la)
