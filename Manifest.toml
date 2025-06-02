@@ -2,7 +2,7 @@
 
 julia_version = "1.11.5"
 manifest_format = "2.0"
-project_hash = "14beed32c6597262cf6ad5fb14b2a7b521310e8a"
+project_hash = "ce64b181cd71033ae0a8d45fb2d2977b655f0152"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -10,11 +10,11 @@ version = "1.11.0"
 
 [[deps.BaseZz]]
 deps = ["Skipper"]
-git-tree-sha1 = "6dec992d2a95fab6bce6cc15b6e9e25b0d0b53f4"
+git-tree-sha1 = "2aebc684e4e8f3adfd761c99a5e91715e8e479b7"
 repo-rev = "main"
 repo-url = "https://github.com/a-r-n-o-l-d/BaseZz.jl"
 uuid = "76171be9-0d6b-4c15-96ae-d6a41202f9dc"
-version = "1.0.0-DEV"
+version = "0.1.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
