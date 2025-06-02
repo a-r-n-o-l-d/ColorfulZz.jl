@@ -133,7 +133,7 @@ end
 # Internal helper functions:
 
 function _scaler_(img)
-    lo, hi = unsafe_extrema(img)
+    lo, hi = fastextrema(img)
     return Scaler(eltype(img), lo, hi)
 end
 
