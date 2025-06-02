@@ -1,5 +1,6 @@
 module ColorfulZz
 
+using BaseZz
 using ColorTypes
 using Colors: Colors, clamp01
 using FixedPointNumbers

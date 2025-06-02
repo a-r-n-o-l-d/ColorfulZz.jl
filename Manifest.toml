@@ -2,11 +2,19 @@
 
 julia_version = "1.11.5"
 manifest_format = "2.0"
-project_hash = "9d866a06d770e42d28329f49517cc3cfcca06f1b"
+project_hash = "14beed32c6597262cf6ad5fb14b2a7b521310e8a"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 version = "1.11.0"
+
+[[deps.BaseZz]]
+deps = ["Skipper"]
+git-tree-sha1 = "6dec992d2a95fab6bce6cc15b6e9e25b0d0b53f4"
+repo-rev = "main"
+repo-url = "https://github.com/a-r-n-o-l-d/BaseZz.jl"
+uuid = "76171be9-0d6b-4c15-96ae-d6a41202f9dc"
+version = "1.0.0-DEV"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -69,6 +77,23 @@ version = "1.2.2"
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
+
+[[deps.Skipper]]
+git-tree-sha1 = "725fc552fd61f56990db3ab30903b94fd16d9182"
+uuid = "fc65d762-6112-4b1c-b428-ad0792653d81"
+version = "0.1.15"
+
+    [deps.Skipper.extensions]
+    AccessorsExt = "Accessors"
+    AxisKeysExt = "AxisKeys"
+    DictionariesExt = "Dictionaries"
+    MakieExt = "Makie"
+
+    [deps.Skipper.weakdeps]
+    Accessors = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
+    AxisKeys = "94b1ba4f-4ee9-5380-92f1-94cde586c3c5"
+    Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
+    Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra"]
