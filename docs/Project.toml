@@ -1,3 +1,4 @@
 [deps]
+BaseZz = "76171be9-0d6b-4c15-96ae-d6a41202f9dc"
 ColorfulZz = "edd910ce-b691-4863-8712-705d465447bc"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
